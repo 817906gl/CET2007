@@ -57,11 +57,17 @@ internal class Program
                     SearchPlayersByGameName(manager);
                     break;
                 case "9":
+                    SortPlayersByTotalHours(manager);
+                    break;
+                case "10":
+                    SortPlayersByHighestScore(manager);
+                    break;
+                case "11":
                     isRunning = false;
                     Console.WriteLine("Goodbye.");
                     break;
                 default:
-                    Console.WriteLine("Invalid option. Please choose a number from 1 to 9.");
+                    Console.WriteLine("Invalid option. Please choose a number from 1 to 11.");
                     break;
             }
 
@@ -355,6 +361,44 @@ internal class Program
         }
     }
 
+    private static void SortPlayersByTotalHours(GameLibraryManager.Services.GameLibraryManager manager)
+    {
+        List<Player> players = manager.SortPlayersByTotalHoursPlayed();
+
+        if (players.Count == 0)
+        {
+            Console.WriteLine("No players found.");
+            return;
+        }
+
+        Console.WriteLine("Players Sorted by Total Hours Played");
+        Console.WriteLine("-----------------------------------");
+
+        foreach (Player player in players)
+        {
+            Console.WriteLine($"{player.Username} - Total Hours: {GetTotalHoursPlayed(player)}");
+        }
+    }
+
+    private static void SortPlayersByHighestScore(GameLibraryManager.Services.GameLibraryManager manager)
+    {
+        List<Player> players = manager.SortPlayersByHighestScore();
+
+        if (players.Count == 0)
+        {
+            Console.WriteLine("No players found.");
+            return;
+        }
+
+        Console.WriteLine("Players Sorted by Highest Score");
+        Console.WriteLine("------------------------------");
+
+        foreach (Player player in players)
+        {
+            Console.WriteLine($"{player.Username} - Highest Score: {GetHighestScore(player)}");
+        }
+    }
+
     private static void PrintPlayerDetails(Player player)
     {
         Console.WriteLine($"Player ID : {player.PlayerId}");
@@ -381,5 +425,32 @@ internal class Program
         Console.WriteLine($"  {number}. {gameStat.GameName}");
         Console.WriteLine($"     Hours Played : {gameStat.HoursPlayed}");
         Console.WriteLine($"     High Score   : {gameStat.HighScore}");
+    }
+
+    private static int GetTotalHoursPlayed(Player player)
+    {
+        int totalHours = 0;
+
+        foreach (GameStat gameStat in player.GameStats)
+        {
+            totalHours += gameStat.HoursPlayed;
+        }
+
+        return totalHours;
+    }
+
+    private static int GetHighestScore(Player player)
+    {
+        int highestScore = 0;
+
+        foreach (GameStat gameStat in player.GameStats)
+        {
+            if (gameStat.HighScore > highestScore)
+            {
+                highestScore = gameStat.HighScore;
+            }
+        }
+
+        return highestScore;
     }
 }

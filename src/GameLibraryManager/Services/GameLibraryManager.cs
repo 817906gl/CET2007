@@ -53,6 +53,52 @@ public class GameLibraryManager
             .ToList();
     }
 
+    public List<Player> SortPlayersByTotalHoursPlayed()
+    {
+        List<Player> sortedPlayers = new List<Player>(_players);
+
+        for (int i = 0; i < sortedPlayers.Count - 1; i++)
+        {
+            for (int j = 0; j < sortedPlayers.Count - i - 1; j++)
+            {
+                int currentHours = GetTotalHoursPlayed(sortedPlayers[j]);
+                int nextHours = GetTotalHoursPlayed(sortedPlayers[j + 1]);
+
+                if (currentHours < nextHours)
+                {
+                    Player temp = sortedPlayers[j];
+                    sortedPlayers[j] = sortedPlayers[j + 1];
+                    sortedPlayers[j + 1] = temp;
+                }
+            }
+        }
+
+        return sortedPlayers;
+    }
+
+    public List<Player> SortPlayersByHighestScore()
+    {
+        List<Player> sortedPlayers = new List<Player>(_players);
+
+        for (int i = 0; i < sortedPlayers.Count - 1; i++)
+        {
+            for (int j = 0; j < sortedPlayers.Count - i - 1; j++)
+            {
+                int currentScore = GetHighestScore(sortedPlayers[j]);
+                int nextScore = GetHighestScore(sortedPlayers[j + 1]);
+
+                if (currentScore < nextScore)
+                {
+                    Player temp = sortedPlayers[j];
+                    sortedPlayers[j] = sortedPlayers[j + 1];
+                    sortedPlayers[j + 1] = temp;
+                }
+            }
+        }
+
+        return sortedPlayers;
+    }
+
     public bool AddGameStatToPlayer(int playerId, GameStat gameStat)
     {
         if (gameStat == null)
@@ -104,5 +150,32 @@ public class GameLibraryManager
         gameStat.HoursPlayed = hoursPlayed;
         gameStat.HighScore = highScore;
         return true;
+    }
+
+    private int GetTotalHoursPlayed(Player player)
+    {
+        int totalHours = 0;
+
+        foreach (GameStat gameStat in player.GameStats)
+        {
+            totalHours += gameStat.HoursPlayed;
+        }
+
+        return totalHours;
+    }
+
+    private int GetHighestScore(Player player)
+    {
+        int highestScore = 0;
+
+        foreach (GameStat gameStat in player.GameStats)
+        {
+            if (gameStat.HighScore > highestScore)
+            {
+                highestScore = gameStat.HighScore;
+            }
+        }
+
+        return highestScore;
     }
 }

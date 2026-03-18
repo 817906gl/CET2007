@@ -188,4 +188,50 @@ public class GameLibraryManagerTests
 
         Assert.Empty(results);
     }
+
+    [Fact]
+    public void SortPlayersByTotalHoursPlayed_ShouldReturnPlayersInDescendingOrder()
+    {
+        var manager = new Manager();
+        var player1 = new Player(14, "amy");
+        var player2 = new Player(15, "ben");
+        var player3 = new Player(16, "cara");
+
+        manager.AddPlayer(player1);
+        manager.AddPlayer(player2);
+        manager.AddPlayer(player3);
+
+        manager.AddGameStatToPlayer(14, new GameStat("Game A", 5, 100));
+        manager.AddGameStatToPlayer(15, new GameStat("Game B", 12, 200));
+        manager.AddGameStatToPlayer(16, new GameStat("Game C", 8, 300));
+
+        var results = manager.SortPlayersByTotalHoursPlayed();
+
+        Assert.Equal("ben", results[0].Username);
+        Assert.Equal("cara", results[1].Username);
+        Assert.Equal("amy", results[2].Username);
+    }
+
+    [Fact]
+    public void SortPlayersByHighestScore_ShouldReturnPlayersInDescendingOrder()
+    {
+        var manager = new Manager();
+        var player1 = new Player(17, "leo");
+        var player2 = new Player(18, "maya");
+        var player3 = new Player(19, "noah");
+
+        manager.AddPlayer(player1);
+        manager.AddPlayer(player2);
+        manager.AddPlayer(player3);
+
+        manager.AddGameStatToPlayer(17, new GameStat("Game A", 4, 1500));
+        manager.AddGameStatToPlayer(18, new GameStat("Game B", 9, 5000));
+        manager.AddGameStatToPlayer(19, new GameStat("Game C", 7, 2500));
+
+        var results = manager.SortPlayersByHighestScore();
+
+        Assert.Equal("maya", results[0].Username);
+        Assert.Equal("noah", results[1].Username);
+        Assert.Equal("leo", results[2].Username);
+    }
 }
