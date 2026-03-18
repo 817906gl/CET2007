@@ -53,4 +53,29 @@ public class GameLibraryManagerTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public void AddGameStatToPlayer_ShouldAddStat_WhenPlayerExists()
+    {
+        var manager = new Manager();
+        var player = new Player(3, "diana");
+
+        manager.AddPlayer(player);
+
+        var result = manager.AddGameStatToPlayer(3, new GameStat("Minecraft", 20, 7000));
+
+        Assert.True(result);
+        Assert.Single(player.GameStats);
+        Assert.Equal("Minecraft", player.GameStats[0].GameName);
+    }
+
+    [Fact]
+    public void AddGameStatToPlayer_ShouldReturnFalse_WhenPlayerDoesNotExist()
+    {
+        var manager = new Manager();
+
+        var result = manager.AddGameStatToPlayer(50, new GameStat("Terraria", 10, 3000));
+
+        Assert.False(result);
+    }
 }

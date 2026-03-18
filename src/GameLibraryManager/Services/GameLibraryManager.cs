@@ -37,4 +37,22 @@ public class GameLibraryManager
     {
         return _players.FirstOrDefault(player => player.PlayerId == playerId);
     }
+
+    public bool AddGameStatToPlayer(int playerId, GameStat gameStat)
+    {
+        if (gameStat == null)
+        {
+            throw new ArgumentNullException(nameof(gameStat));
+        }
+
+        Player? player = FindPlayerById(playerId);
+
+        if (player == null)
+        {
+            return false;
+        }
+
+        player.GameStats.Add(gameStat);
+        return true;
+    }
 }

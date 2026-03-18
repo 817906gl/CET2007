@@ -36,17 +36,20 @@ internal class Program
                     AddPlayer(manager);
                     break;
                 case "2":
-                    ViewAllPlayers(manager);
+                    AddGameStatToPlayer(manager);
                     break;
                 case "3":
-                    FindPlayerById(manager);
+                    ViewAllPlayers(manager);
                     break;
                 case "4":
+                    FindPlayerById(manager);
+                    break;
+                case "5":
                     isRunning = false;
                     Console.WriteLine("Goodbye.");
                     break;
                 default:
-                    Console.WriteLine("Invalid option. Please choose 1, 2, 3, or 4.");
+                    Console.WriteLine("Invalid option. Please choose 1, 2, 3, 4, or 5.");
                     break;
             }
 
@@ -127,6 +130,17 @@ internal class Program
         foreach (Player player in players)
         {
             Console.WriteLine($"ID: {player.PlayerId}, Username: {player.Username}");
+
+            if (player.GameStats.Count == 0)
+            {
+                Console.WriteLine("  No game stats recorded.");
+                continue;
+            }
+
+            foreach (GameStat gameStat in player.GameStats)
+            {
+                Console.WriteLine($"  Game: {gameStat.GameName}, Hours: {gameStat.HoursPlayed}, High Score: {gameStat.HighScore}");
+            }
         }
     }
 
@@ -150,5 +164,55 @@ internal class Program
         }
 
         Console.WriteLine($"Player found: ID = {player.PlayerId}, Username = {player.Username}");
+    }
+
+    private static void AddGameStatToPlayer(GameLibraryManager.Services.GameLibraryManager manager)
+    {
+        Console.Write("Enter player ID: ");
+        string? idInput = Console.ReadLine();
+
+        if (!int.TryParse(idInput, out int playerId))
+        {
+            Console.WriteLine("Player ID must be a valid number.");
+            return;
+        }
+
+        Console.Write("Enter game name: ");
+        string? gameName = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(gameName))
+        {
+            Console.WriteLine("Game name cannot be empty.");
+            return;
+        }
+
+        Console.Write("Enter hours played: ");
+        string? hoursInput = Console.ReadLine();
+
+        if (!int.TryParse(hoursInput, out int hoursPlayed) || hoursPlayed < 0)
+        {
+            Console.WriteLine("Hours played must be a valid non-negative number.");
+            return;
+        }
+
+        Console.Write("Enter high score: ");
+        string? scoreInput = Console.ReadLine();
+
+        if (!int.TryParse(scoreInput, out int highScore) || highScore < 0)
+        {
+            Console.WriteLine("High score must be a valid non-negative number.");
+            return;
+        }
+
+        var gameStat = new GameStat(gameName.Trim(), hoursPlayed, highScore);
+        bool wasAdded = manager.AddGameStatToPlayer(playerId, gameStat);
+
+        if (!wasAdded)
+        {
+            Console.WriteLine("Player not found.");
+            return;
+        }
+
+        Console.WriteLine("Game stat added successfully.");
     }
 }
