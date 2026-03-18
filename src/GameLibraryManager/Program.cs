@@ -39,17 +39,23 @@ internal class Program
                     AddGameStatToPlayer(manager);
                     break;
                 case "3":
-                    ViewAllPlayers(manager);
+                    UpdatePlayerUsername(manager);
                     break;
                 case "4":
-                    FindPlayerById(manager);
+                    UpdateGameStat(manager);
                     break;
                 case "5":
+                    ViewAllPlayers(manager);
+                    break;
+                case "6":
+                    FindPlayerById(manager);
+                    break;
+                case "7":
                     isRunning = false;
                     Console.WriteLine("Goodbye.");
                     break;
                 default:
-                    Console.WriteLine("Invalid option. Please choose 1, 2, 3, 4, or 5.");
+                    Console.WriteLine("Invalid option. Please choose 1, 2, 3, 4, 5, 6, or 7.");
                     break;
             }
 
@@ -203,6 +209,86 @@ internal class Program
         }
 
         Console.WriteLine("Game stat added successfully.");
+    }
+
+    private static void UpdatePlayerUsername(GameLibraryManager.Services.GameLibraryManager manager)
+    {
+        Console.Write("Enter player ID: ");
+        string? idInput = Console.ReadLine();
+
+        if (!int.TryParse(idInput, out int playerId))
+        {
+            Console.WriteLine("Player ID must be a valid number.");
+            return;
+        }
+
+        Console.Write("Enter new username: ");
+        string? username = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            Console.WriteLine("Username cannot be empty.");
+            return;
+        }
+
+        bool wasUpdated = manager.UpdatePlayerUsername(playerId, username.Trim());
+
+        if (!wasUpdated)
+        {
+            Console.WriteLine("Player not found.");
+            return;
+        }
+
+        Console.WriteLine("Username updated successfully.");
+    }
+
+    private static void UpdateGameStat(GameLibraryManager.Services.GameLibraryManager manager)
+    {
+        Console.Write("Enter player ID: ");
+        string? idInput = Console.ReadLine();
+
+        if (!int.TryParse(idInput, out int playerId))
+        {
+            Console.WriteLine("Player ID must be a valid number.");
+            return;
+        }
+
+        Console.Write("Enter game name to update: ");
+        string? gameName = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(gameName))
+        {
+            Console.WriteLine("Game name cannot be empty.");
+            return;
+        }
+
+        Console.Write("Enter new hours played: ");
+        string? hoursInput = Console.ReadLine();
+
+        if (!int.TryParse(hoursInput, out int hoursPlayed) || hoursPlayed < 0)
+        {
+            Console.WriteLine("Hours played must be a valid non-negative number.");
+            return;
+        }
+
+        Console.Write("Enter new high score: ");
+        string? scoreInput = Console.ReadLine();
+
+        if (!int.TryParse(scoreInput, out int highScore) || highScore < 0)
+        {
+            Console.WriteLine("High score must be a valid non-negative number.");
+            return;
+        }
+
+        bool wasUpdated = manager.UpdateGameStat(playerId, gameName.Trim(), hoursPlayed, highScore);
+
+        if (!wasUpdated)
+        {
+            Console.WriteLine("Player or game stat not found.");
+            return;
+        }
+
+        Console.WriteLine("Game stat updated successfully.");
     }
 
     private static void PrintPlayerDetails(Player player)

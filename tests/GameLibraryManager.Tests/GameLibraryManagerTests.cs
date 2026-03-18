@@ -78,4 +78,57 @@ public class GameLibraryManagerTests
 
         Assert.False(result);
     }
+
+    [Fact]
+    public void UpdatePlayerUsername_ShouldUpdateUsername_WhenPlayerExists()
+    {
+        var manager = new Manager();
+        var player = new Player(4, "oldname");
+
+        manager.AddPlayer(player);
+
+        var result = manager.UpdatePlayerUsername(4, "newname");
+
+        Assert.True(result);
+        Assert.Equal("newname", player.Username);
+    }
+
+    [Fact]
+    public void UpdatePlayerUsername_ShouldReturnFalse_WhenPlayerDoesNotExist()
+    {
+        var manager = new Manager();
+
+        var result = manager.UpdatePlayerUsername(100, "newname");
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void UpdateGameStat_ShouldUpdateValues_WhenGameStatExists()
+    {
+        var manager = new Manager();
+        var player = new Player(5, "emma");
+
+        manager.AddPlayer(player);
+        manager.AddGameStatToPlayer(5, new GameStat("Hades", 10, 1500));
+
+        var result = manager.UpdateGameStat(5, "Hades", 25, 5000);
+
+        Assert.True(result);
+        Assert.Equal(25, player.GameStats[0].HoursPlayed);
+        Assert.Equal(5000, player.GameStats[0].HighScore);
+    }
+
+    [Fact]
+    public void UpdateGameStat_ShouldReturnFalse_WhenGameStatDoesNotExist()
+    {
+        var manager = new Manager();
+        var player = new Player(6, "frank");
+
+        manager.AddPlayer(player);
+
+        var result = manager.UpdateGameStat(6, "Celeste", 12, 2000);
+
+        Assert.False(result);
+    }
 }

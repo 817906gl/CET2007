@@ -55,4 +55,39 @@ public class GameLibraryManager
         player.GameStats.Add(gameStat);
         return true;
     }
+
+    public bool UpdatePlayerUsername(int playerId, string newUsername)
+    {
+        Player? player = FindPlayerById(playerId);
+
+        if (player == null)
+        {
+            return false;
+        }
+
+        player.Username = newUsername;
+        return true;
+    }
+
+    public bool UpdateGameStat(int playerId, string gameName, int hoursPlayed, int highScore)
+    {
+        Player? player = FindPlayerById(playerId);
+
+        if (player == null)
+        {
+            return false;
+        }
+
+        GameStat? gameStat = player.GameStats.FirstOrDefault(stat =>
+            stat.GameName.Equals(gameName, StringComparison.OrdinalIgnoreCase));
+
+        if (gameStat == null)
+        {
+            return false;
+        }
+
+        gameStat.HoursPlayed = hoursPlayed;
+        gameStat.HighScore = highScore;
+        return true;
+    }
 }
