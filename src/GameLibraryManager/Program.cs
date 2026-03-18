@@ -12,7 +12,7 @@ internal class Program
         var manager = new GameLibraryManager.Services.GameLibraryManager();
         var reportService = new ReportService();
         var storageService = new JsonStorageService();
-        var logger = new TextFileLogger("data/app-log.txt");
+        var logger = TextFileLogger.GetInstance("data/app-log.txt");
         const string dataFilePath = "data/players.json";
 
         bool isRunning = true;
