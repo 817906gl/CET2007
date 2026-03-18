@@ -120,27 +120,17 @@ internal class Program
 
     private static void AddPlayer(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
-        Console.Write("Enter player ID: ");
-        string? idInput = Console.ReadLine();
-
-        if (!int.TryParse(idInput, out int playerId))
+        if (!TryReadNonNegativeInt("Enter player ID: ", out int playerId, logger, "adding player"))
         {
-            Console.WriteLine("Player ID must be a valid number.");
-            logger.LogError($"Invalid player ID entered while adding player: {idInput}");
             return;
         }
 
-        Console.Write("Enter username: ");
-        string? username = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(username))
+        if (!TryReadRequiredText("Enter username: ", "Username", out string username, logger, "adding player"))
         {
-            Console.WriteLine("Username cannot be empty.");
-            logger.LogError("Empty username entered while adding player.");
             return;
         }
 
-        var player = new Player(playerId, username.Trim());
+        var player = new Player(playerId, username);
 
         try
         {
@@ -148,7 +138,7 @@ internal class Program
             Console.WriteLine("Player added successfully.");
             logger.LogInfo($"Added player: ID={player.PlayerId}, Username={player.Username}");
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             logger.LogError($"Could not add player with ID {player.PlayerId}: {ex.Message}");
@@ -176,12 +166,8 @@ internal class Program
 
     private static void SearchPlayerById(GameLibraryManager.Services.GameLibraryManager manager)
     {
-        Console.Write("Enter player ID to search: ");
-        string? idInput = Console.ReadLine();
-
-        if (!int.TryParse(idInput, out int playerId))
+        if (!TryReadNonNegativeInt("Enter player ID to search: ", out int playerId))
         {
-            Console.WriteLine("Player ID must be a valid number.");
             return;
         }
 
@@ -200,48 +186,39 @@ internal class Program
 
     private static void AddGameStatToPlayer(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
-        Console.Write("Enter player ID: ");
-        string? idInput = Console.ReadLine();
-
-        if (!int.TryParse(idInput, out int playerId))
+        if (!TryReadNonNegativeInt("Enter player ID: ", out int playerId, logger, "adding game stat"))
         {
-            Console.WriteLine("Player ID must be a valid number.");
-            logger.LogError($"Invalid player ID entered while adding game stat: {idInput}");
             return;
         }
 
-        Console.Write("Enter game name: ");
-        string? gameName = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(gameName))
+        if (!TryReadRequiredText("Enter game name: ", "Game name", out string gameName, logger, "adding game stat"))
         {
-            Console.WriteLine("Game name cannot be empty.");
-            logger.LogError("Empty game name entered while adding game stat.");
             return;
         }
 
-        Console.Write("Enter hours played: ");
-        string? hoursInput = Console.ReadLine();
-
-        if (!int.TryParse(hoursInput, out int hoursPlayed) || hoursPlayed < 0)
+        if (!TryReadNonNegativeInt("Enter hours played: ", out int hoursPlayed, logger, "adding game stat"))
         {
-            Console.WriteLine("Hours played must be a valid non-negative number.");
-            logger.LogError($"Invalid hours played entered while adding game stat: {hoursInput}");
             return;
         }
 
-        Console.Write("Enter high score: ");
-        string? scoreInput = Console.ReadLine();
-
-        if (!int.TryParse(scoreInput, out int highScore) || highScore < 0)
+        if (!TryReadNonNegativeInt("Enter high score: ", out int highScore, logger, "adding game stat"))
         {
-            Console.WriteLine("High score must be a valid non-negative number.");
-            logger.LogError($"Invalid high score entered while adding game stat: {scoreInput}");
             return;
         }
 
-        var gameStat = new GameStat(gameName.Trim(), hoursPlayed, highScore);
-        bool wasAdded = manager.AddGameStatToPlayer(playerId, gameStat);
+        var gameStat = new GameStat(gameName, hoursPlayed, highScore);
+        bool wasAdded;
+
+        try
+        {
+            wasAdded = manager.AddGameStatToPlayer(playerId, gameStat);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            logger.LogError($"Could not add game stat for player ID {playerId}: {ex.Message}");
+            return;
+        }
 
         if (!wasAdded)
         {
@@ -256,27 +233,28 @@ internal class Program
 
     private static void UpdatePlayerUsername(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
-        Console.Write("Enter player ID: ");
-        string? idInput = Console.ReadLine();
-
-        if (!int.TryParse(idInput, out int playerId))
+        if (!TryReadNonNegativeInt("Enter player ID: ", out int playerId, logger, "updating username"))
         {
-            Console.WriteLine("Player ID must be a valid number.");
-            logger.LogError($"Invalid player ID entered while updating username: {idInput}");
             return;
         }
 
-        Console.Write("Enter new username: ");
-        string? username = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(username))
+        if (!TryReadRequiredText("Enter new username: ", "Username", out string username, logger, "updating username"))
         {
-            Console.WriteLine("Username cannot be empty.");
-            logger.LogError("Empty username entered while updating player.");
             return;
         }
 
-        bool wasUpdated = manager.UpdatePlayerUsername(playerId, username.Trim());
+        bool wasUpdated;
+
+        try
+        {
+            wasUpdated = manager.UpdatePlayerUsername(playerId, username);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            logger.LogError($"Could not update username for player ID {playerId}: {ex.Message}");
+            return;
+        }
 
         if (!wasUpdated)
         {
@@ -286,76 +264,63 @@ internal class Program
         }
 
         Console.WriteLine("Username updated successfully.");
-        logger.LogInfo($"Updated username for player ID {playerId} to {username.Trim()}");
+        logger.LogInfo($"Updated username for player ID {playerId} to {username}");
     }
 
     private static void UpdateGameStat(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
-        Console.Write("Enter player ID: ");
-        string? idInput = Console.ReadLine();
-
-        if (!int.TryParse(idInput, out int playerId))
+        if (!TryReadNonNegativeInt("Enter player ID: ", out int playerId, logger, "updating game stat"))
         {
-            Console.WriteLine("Player ID must be a valid number.");
-            logger.LogError($"Invalid player ID entered while updating game stat: {idInput}");
             return;
         }
 
-        Console.Write("Enter game name to update: ");
-        string? gameName = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(gameName))
+        if (!TryReadRequiredText("Enter game name to update: ", "Game name", out string gameName, logger, "updating game stat"))
         {
-            Console.WriteLine("Game name cannot be empty.");
-            logger.LogError("Empty game name entered while updating game stat.");
             return;
         }
 
-        Console.Write("Enter new hours played: ");
-        string? hoursInput = Console.ReadLine();
-
-        if (!int.TryParse(hoursInput, out int hoursPlayed) || hoursPlayed < 0)
+        if (!TryReadNonNegativeInt("Enter new hours played: ", out int hoursPlayed, logger, "updating game stat"))
         {
-            Console.WriteLine("Hours played must be a valid non-negative number.");
-            logger.LogError($"Invalid hours played entered while updating game stat: {hoursInput}");
             return;
         }
 
-        Console.Write("Enter new high score: ");
-        string? scoreInput = Console.ReadLine();
-
-        if (!int.TryParse(scoreInput, out int highScore) || highScore < 0)
+        if (!TryReadNonNegativeInt("Enter new high score: ", out int highScore, logger, "updating game stat"))
         {
-            Console.WriteLine("High score must be a valid non-negative number.");
-            logger.LogError($"Invalid high score entered while updating game stat: {scoreInput}");
             return;
         }
 
-        bool wasUpdated = manager.UpdateGameStat(playerId, gameName.Trim(), hoursPlayed, highScore);
+        bool wasUpdated;
+
+        try
+        {
+            wasUpdated = manager.UpdateGameStat(playerId, gameName, hoursPlayed, highScore);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            logger.LogError($"Could not update game stat for player ID {playerId}: {ex.Message}");
+            return;
+        }
 
         if (!wasUpdated)
         {
             Console.WriteLine("Player or game stat not found.");
-            logger.LogError($"Could not update game stat. Player ID={playerId}, Game={gameName.Trim()}");
+            logger.LogError($"Could not update game stat. Player ID={playerId}, Game={gameName}");
             return;
         }
 
         Console.WriteLine("Game stat updated successfully.");
-        logger.LogInfo($"Updated game stat for player ID {playerId}: Game={gameName.Trim()}, Hours={hoursPlayed}, Score={highScore}");
+        logger.LogInfo($"Updated game stat for player ID {playerId}: Game={gameName}, Hours={hoursPlayed}, Score={highScore}");
     }
 
     private static void SearchPlayerByUsername(GameLibraryManager.Services.GameLibraryManager manager)
     {
-        Console.Write("Enter username to search: ");
-        string? username = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(username))
+        if (!TryReadRequiredText("Enter username to search: ", "Username", out string username))
         {
-            Console.WriteLine("Username cannot be empty.");
             return;
         }
 
-        List<Player> players = manager.FindPlayersByUsername(username.Trim());
+        List<Player> players = manager.FindPlayersByUsername(username);
 
         if (players.Count == 0)
         {
@@ -374,16 +339,12 @@ internal class Program
 
     private static void SearchPlayersByGameName(GameLibraryManager.Services.GameLibraryManager manager)
     {
-        Console.Write("Enter game name to search: ");
-        string? gameName = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(gameName))
+        if (!TryReadRequiredText("Enter game name to search: ", "Game name", out string gameName))
         {
-            Console.WriteLine("Game name cannot be empty.");
             return;
         }
 
-        List<Player> players = manager.FindPlayersByGameName(gameName.Trim());
+        List<Player> players = manager.FindPlayersByGameName(gameName);
 
         if (players.Count == 0)
         {
@@ -496,6 +457,45 @@ internal class Program
         manager.ReplaceAllPlayers(players);
         Console.WriteLine($"Loaded file: {filePath}");
         logger.LogInfo($"Loaded player data from {filePath}");
+    }
+
+    private static bool TryReadNonNegativeInt(string prompt, out int value, TextFileLogger? logger = null, string? context = null)
+    {
+        Console.Write(prompt);
+        string? input = Console.ReadLine();
+
+        if (!int.TryParse(input, out value))
+        {
+            Console.WriteLine("Please enter a valid number.");
+            logger?.LogError($"Invalid numeric input while {context}: {input}");
+            return false;
+        }
+
+        if (value < 0)
+        {
+            Console.WriteLine("Please enter a non-negative number.");
+            logger?.LogError($"Negative value entered while {context}: {value}");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool TryReadRequiredText(string prompt, string fieldName, out string value, TextFileLogger? logger = null, string? context = null)
+    {
+        Console.Write(prompt);
+        string? input = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            Console.WriteLine($"{fieldName} cannot be empty.");
+            logger?.LogError($"Empty text entered for {fieldName} while {context}.");
+            value = string.Empty;
+            return false;
+        }
+
+        value = input.Trim();
+        return true;
     }
 
     private static void PrintPlayerDetails(Player player)

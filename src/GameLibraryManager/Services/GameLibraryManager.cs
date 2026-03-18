@@ -18,6 +18,16 @@ public class GameLibraryManager
             throw new ArgumentNullException(nameof(player));
         }
 
+        if (player.PlayerId < 0)
+        {
+            throw new ArgumentException("Player ID cannot be negative.");
+        }
+
+        if (string.IsNullOrWhiteSpace(player.Username))
+        {
+            throw new ArgumentException("Username cannot be empty.");
+        }
+
         bool duplicateExists = _players.Any(existingPlayer => existingPlayer.PlayerId == player.PlayerId);
 
         if (duplicateExists)
@@ -35,6 +45,11 @@ public class GameLibraryManager
 
     public void ReplaceAllPlayers(List<Player> players)
     {
+        if (players == null)
+        {
+            throw new ArgumentNullException(nameof(players));
+        }
+
         _players.Clear();
 
         foreach (Player player in players)
@@ -116,6 +131,13 @@ public class GameLibraryManager
             throw new ArgumentNullException(nameof(gameStat));
         }
 
+        if (playerId < 0)
+        {
+            throw new ArgumentException("Player ID cannot be negative.");
+        }
+
+        ValidateGameStat(gameStat);
+
         Player? player = FindPlayerById(playerId);
 
         if (player == null)
@@ -129,6 +151,16 @@ public class GameLibraryManager
 
     public bool UpdatePlayerUsername(int playerId, string newUsername)
     {
+        if (playerId < 0)
+        {
+            throw new ArgumentException("Player ID cannot be negative.");
+        }
+
+        if (string.IsNullOrWhiteSpace(newUsername))
+        {
+            throw new ArgumentException("Username cannot be empty.");
+        }
+
         Player? player = FindPlayerById(playerId);
 
         if (player == null)
@@ -142,6 +174,21 @@ public class GameLibraryManager
 
     public bool UpdateGameStat(int playerId, string gameName, int hoursPlayed, int highScore)
     {
+        if (playerId < 0)
+        {
+            throw new ArgumentException("Player ID cannot be negative.");
+        }
+
+        if (string.IsNullOrWhiteSpace(gameName))
+        {
+            throw new ArgumentException("Game name cannot be empty.");
+        }
+
+        if (hoursPlayed < 0 || highScore < 0)
+        {
+            throw new ArgumentException("Hours played and high score cannot be negative.");
+        }
+
         Player? player = FindPlayerById(playerId);
 
         if (player == null)
@@ -160,6 +207,19 @@ public class GameLibraryManager
         gameStat.HoursPlayed = hoursPlayed;
         gameStat.HighScore = highScore;
         return true;
+    }
+
+    private void ValidateGameStat(GameStat gameStat)
+    {
+        if (string.IsNullOrWhiteSpace(gameStat.GameName))
+        {
+            throw new ArgumentException("Game name cannot be empty.");
+        }
+
+        if (gameStat.HoursPlayed < 0 || gameStat.HighScore < 0)
+        {
+            throw new ArgumentException("Hours played and high score cannot be negative.");
+        }
     }
 
     private int GetTotalHoursPlayed(Player player)

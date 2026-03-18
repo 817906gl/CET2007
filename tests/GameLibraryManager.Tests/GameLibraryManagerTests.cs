@@ -32,6 +32,16 @@ public class GameLibraryManagerTests
     }
 
     [Fact]
+    public void AddPlayer_ShouldThrowException_WhenPlayerIdIsNegative()
+    {
+        var manager = new Manager();
+
+        Action act = () => manager.AddPlayer(new Player(-1, "alice"));
+
+        Assert.Throws<ArgumentException>(act);
+    }
+
+    [Fact]
     public void FindPlayerById_ShouldReturnPlayer_WhenPlayerExists()
     {
         var manager = new Manager();
@@ -77,6 +87,17 @@ public class GameLibraryManagerTests
         var result = manager.AddGameStatToPlayer(50, new GameStat("Terraria", 10, 3000));
 
         Assert.False(result);
+    }
+
+    [Fact]
+    public void AddGameStatToPlayer_ShouldThrowException_WhenValuesAreNegative()
+    {
+        var manager = new Manager();
+        manager.AddPlayer(new Player(20, "grace"));
+
+        Action act = () => manager.AddGameStatToPlayer(20, new GameStat("Minecraft", -1, 2000));
+
+        Assert.Throws<ArgumentException>(act);
     }
 
     [Fact]

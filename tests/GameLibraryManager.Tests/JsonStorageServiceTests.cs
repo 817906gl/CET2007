@@ -64,4 +64,28 @@ public class JsonStorageServiceTests
 
         File.Delete(filePath);
     }
+
+    [Fact]
+    public void LoadPlayers_ShouldReturnFalse_WhenDuplicatePlayerIdsExist()
+    {
+        var storageService = new JsonStorageService();
+        string filePath = Path.Combine(Path.GetTempPath(), $"duplicate-{Guid.NewGuid()}.json");
+
+        string json = """
+        [
+          { "PlayerId": 1, "Username": "alice", "GameStats": [] },
+          { "PlayerId": 1, "Username": "bob", "GameStats": [] }
+        ]
+        """;
+
+        File.WriteAllText(filePath, json);
+
+        bool result = storageService.LoadPlayers(filePath, out List<Player> players, out string message);
+
+        Assert.False(result);
+        Assert.Empty(players);
+        Assert.Contains("duplicate", message, StringComparison.OrdinalIgnoreCase);
+
+        File.Delete(filePath);
+    }
 }

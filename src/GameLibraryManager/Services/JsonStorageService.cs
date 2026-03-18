@@ -31,6 +31,16 @@ public class JsonStorageService
             message = "Data saved successfully.";
             return true;
         }
+        catch (UnauthorizedAccessException)
+        {
+            message = "The application does not have permission to save the file.";
+            return false;
+        }
+        catch (IOException ex)
+        {
+            message = $"A file error occurred while saving data: {ex.Message}";
+            return false;
+        }
         catch (Exception ex)
         {
             message = $"Could not save data: {ex.Message}";
@@ -59,6 +69,12 @@ public class JsonStorageService
                 return false;
             }
 
+            if (HasDuplicatePlayerIds(loadedPlayers))
+            {
+                message = "The JSON file contains duplicate player IDs.";
+                return false;
+            }
+
             players = loadedPlayers;
             message = "Data loaded successfully.";
             return true;
@@ -68,10 +84,27 @@ public class JsonStorageService
             message = "The JSON file is not in a valid format.";
             return false;
         }
+        catch (UnauthorizedAccessException)
+        {
+            message = "The application does not have permission to load the file.";
+            return false;
+        }
+        catch (IOException ex)
+        {
+            message = $"A file error occurred while loading data: {ex.Message}";
+            return false;
+        }
         catch (Exception ex)
         {
             message = $"Could not load data: {ex.Message}";
             return false;
         }
+    }
+
+    private bool HasDuplicatePlayerIds(List<Player> players)
+    {
+        return players
+            .GroupBy(player => player.PlayerId)
+            .Any(group => group.Count() > 1);
     }
 }
