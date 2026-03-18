@@ -12,6 +12,7 @@ internal class Program
         var manager = new GameLibraryManager.Services.GameLibraryManager();
         var reportService = new ReportService();
         var storageService = new JsonStorageService();
+        var logger = new TextFileLogger("data/app-log.txt");
         const string dataFilePath = "data/players.json";
 
         bool isRunning = true;
@@ -28,6 +29,7 @@ internal class Program
             {
                 Console.WriteLine();
                 Console.WriteLine("Input stream closed. Exiting program.");
+                logger.LogInfo("Input stream closed. Application exited.");
                 break;
             }
 
@@ -36,16 +38,16 @@ internal class Program
             switch (choice)
             {
                 case "1":
-                    AddPlayer(manager);
+                    AddPlayer(manager, logger);
                     break;
                 case "2":
-                    AddGameStatToPlayer(manager);
+                    AddGameStatToPlayer(manager, logger);
                     break;
                 case "3":
-                    UpdatePlayerUsername(manager);
+                    UpdatePlayerUsername(manager, logger);
                     break;
                 case "4":
-                    UpdateGameStat(manager);
+                    UpdateGameStat(manager, logger);
                     break;
                 case "5":
                     ViewAllPlayers(manager);
@@ -72,17 +74,19 @@ internal class Program
                     ShowTopScoringPlayersReport(manager, reportService);
                     break;
                 case "13":
-                    SaveData(manager, storageService, dataFilePath);
+                    SaveData(manager, storageService, logger, dataFilePath);
                     break;
                 case "14":
-                    LoadData(manager, storageService, dataFilePath);
+                    LoadData(manager, storageService, logger, dataFilePath);
                     break;
                 case "15":
                     isRunning = false;
                     Console.WriteLine("Goodbye.");
+                    logger.LogInfo("Application closed by user.");
                     break;
                 default:
                     Console.WriteLine("Invalid option. Please choose a number from 1 to 15.");
+                    logger.LogError($"Invalid menu option entered: {choice}");
                     break;
             }
 
@@ -114,7 +118,7 @@ internal class Program
         }
     }
 
-    private static void AddPlayer(GameLibraryManager.Services.GameLibraryManager manager)
+    private static void AddPlayer(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
         Console.Write("Enter player ID: ");
         string? idInput = Console.ReadLine();
@@ -122,6 +126,7 @@ internal class Program
         if (!int.TryParse(idInput, out int playerId))
         {
             Console.WriteLine("Player ID must be a valid number.");
+            logger.LogError($"Invalid player ID entered while adding player: {idInput}");
             return;
         }
 
@@ -131,6 +136,7 @@ internal class Program
         if (string.IsNullOrWhiteSpace(username))
         {
             Console.WriteLine("Username cannot be empty.");
+            logger.LogError("Empty username entered while adding player.");
             return;
         }
 
@@ -140,10 +146,12 @@ internal class Program
         {
             manager.AddPlayer(player);
             Console.WriteLine("Player added successfully.");
+            logger.LogInfo($"Added player: ID={player.PlayerId}, Username={player.Username}");
         }
         catch (InvalidOperationException ex)
         {
             Console.WriteLine(ex.Message);
+            logger.LogError($"Could not add player with ID {player.PlayerId}: {ex.Message}");
         }
     }
 
@@ -190,7 +198,7 @@ internal class Program
         PrintPlayerDetails(player);
     }
 
-    private static void AddGameStatToPlayer(GameLibraryManager.Services.GameLibraryManager manager)
+    private static void AddGameStatToPlayer(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
         Console.Write("Enter player ID: ");
         string? idInput = Console.ReadLine();
@@ -198,6 +206,7 @@ internal class Program
         if (!int.TryParse(idInput, out int playerId))
         {
             Console.WriteLine("Player ID must be a valid number.");
+            logger.LogError($"Invalid player ID entered while adding game stat: {idInput}");
             return;
         }
 
@@ -207,6 +216,7 @@ internal class Program
         if (string.IsNullOrWhiteSpace(gameName))
         {
             Console.WriteLine("Game name cannot be empty.");
+            logger.LogError("Empty game name entered while adding game stat.");
             return;
         }
 
@@ -216,6 +226,7 @@ internal class Program
         if (!int.TryParse(hoursInput, out int hoursPlayed) || hoursPlayed < 0)
         {
             Console.WriteLine("Hours played must be a valid non-negative number.");
+            logger.LogError($"Invalid hours played entered while adding game stat: {hoursInput}");
             return;
         }
 
@@ -225,6 +236,7 @@ internal class Program
         if (!int.TryParse(scoreInput, out int highScore) || highScore < 0)
         {
             Console.WriteLine("High score must be a valid non-negative number.");
+            logger.LogError($"Invalid high score entered while adding game stat: {scoreInput}");
             return;
         }
 
@@ -234,13 +246,15 @@ internal class Program
         if (!wasAdded)
         {
             Console.WriteLine("Player not found.");
+            logger.LogError($"Could not add game stat because player was not found: ID={playerId}");
             return;
         }
 
         Console.WriteLine("Game stat added successfully.");
+        logger.LogInfo($"Added game stat for player ID {playerId}: Game={gameStat.GameName}, Hours={hoursPlayed}, Score={highScore}");
     }
 
-    private static void UpdatePlayerUsername(GameLibraryManager.Services.GameLibraryManager manager)
+    private static void UpdatePlayerUsername(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
         Console.Write("Enter player ID: ");
         string? idInput = Console.ReadLine();
@@ -248,6 +262,7 @@ internal class Program
         if (!int.TryParse(idInput, out int playerId))
         {
             Console.WriteLine("Player ID must be a valid number.");
+            logger.LogError($"Invalid player ID entered while updating username: {idInput}");
             return;
         }
 
@@ -257,6 +272,7 @@ internal class Program
         if (string.IsNullOrWhiteSpace(username))
         {
             Console.WriteLine("Username cannot be empty.");
+            logger.LogError("Empty username entered while updating player.");
             return;
         }
 
@@ -265,13 +281,15 @@ internal class Program
         if (!wasUpdated)
         {
             Console.WriteLine("Player not found.");
+            logger.LogError($"Could not update username because player was not found: ID={playerId}");
             return;
         }
 
         Console.WriteLine("Username updated successfully.");
+        logger.LogInfo($"Updated username for player ID {playerId} to {username.Trim()}");
     }
 
-    private static void UpdateGameStat(GameLibraryManager.Services.GameLibraryManager manager)
+    private static void UpdateGameStat(GameLibraryManager.Services.GameLibraryManager manager, TextFileLogger logger)
     {
         Console.Write("Enter player ID: ");
         string? idInput = Console.ReadLine();
@@ -279,6 +297,7 @@ internal class Program
         if (!int.TryParse(idInput, out int playerId))
         {
             Console.WriteLine("Player ID must be a valid number.");
+            logger.LogError($"Invalid player ID entered while updating game stat: {idInput}");
             return;
         }
 
@@ -288,6 +307,7 @@ internal class Program
         if (string.IsNullOrWhiteSpace(gameName))
         {
             Console.WriteLine("Game name cannot be empty.");
+            logger.LogError("Empty game name entered while updating game stat.");
             return;
         }
 
@@ -297,6 +317,7 @@ internal class Program
         if (!int.TryParse(hoursInput, out int hoursPlayed) || hoursPlayed < 0)
         {
             Console.WriteLine("Hours played must be a valid non-negative number.");
+            logger.LogError($"Invalid hours played entered while updating game stat: {hoursInput}");
             return;
         }
 
@@ -306,6 +327,7 @@ internal class Program
         if (!int.TryParse(scoreInput, out int highScore) || highScore < 0)
         {
             Console.WriteLine("High score must be a valid non-negative number.");
+            logger.LogError($"Invalid high score entered while updating game stat: {scoreInput}");
             return;
         }
 
@@ -314,10 +336,12 @@ internal class Program
         if (!wasUpdated)
         {
             Console.WriteLine("Player or game stat not found.");
+            logger.LogError($"Could not update game stat. Player ID={playerId}, Game={gameName.Trim()}");
             return;
         }
 
         Console.WriteLine("Game stat updated successfully.");
+        logger.LogInfo($"Updated game stat for player ID {playerId}: Game={gameName.Trim()}, Hours={hoursPlayed}, Score={highScore}");
     }
 
     private static void SearchPlayerByUsername(GameLibraryManager.Services.GameLibraryManager manager)
@@ -435,6 +459,7 @@ internal class Program
     private static void SaveData(
         GameLibraryManager.Services.GameLibraryManager manager,
         JsonStorageService storageService,
+        TextFileLogger logger,
         string filePath)
     {
         bool wasSaved = storageService.SavePlayers(filePath, manager.GetAllPlayers(), out string message);
@@ -444,12 +469,18 @@ internal class Program
         if (wasSaved)
         {
             Console.WriteLine($"Saved file: {filePath}");
+            logger.LogInfo($"Saved player data to {filePath}");
+        }
+        else
+        {
+            logger.LogError($"Failed to save player data to {filePath}: {message}");
         }
     }
 
     private static void LoadData(
         GameLibraryManager.Services.GameLibraryManager manager,
         JsonStorageService storageService,
+        TextFileLogger logger,
         string filePath)
     {
         bool wasLoaded = storageService.LoadPlayers(filePath, out List<Player> players, out string message);
@@ -458,11 +489,13 @@ internal class Program
 
         if (!wasLoaded)
         {
+            logger.LogError($"Failed to load player data from {filePath}: {message}");
             return;
         }
 
         manager.ReplaceAllPlayers(players);
         Console.WriteLine($"Loaded file: {filePath}");
+        logger.LogInfo($"Loaded player data from {filePath}");
     }
 
     private static void PrintPlayerDetails(Player player)
