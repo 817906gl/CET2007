@@ -129,18 +129,7 @@ internal class Program
 
         foreach (Player player in players)
         {
-            Console.WriteLine($"ID: {player.PlayerId}, Username: {player.Username}");
-
-            if (player.GameStats.Count == 0)
-            {
-                Console.WriteLine("  No game stats recorded.");
-                continue;
-            }
-
-            foreach (GameStat gameStat in player.GameStats)
-            {
-                Console.WriteLine($"  Game: {gameStat.GameName}, Hours: {gameStat.HoursPlayed}, High Score: {gameStat.HighScore}");
-            }
+            PrintPlayerDetails(player);
         }
     }
 
@@ -214,5 +203,33 @@ internal class Program
         }
 
         Console.WriteLine("Game stat added successfully.");
+    }
+
+    private static void PrintPlayerDetails(Player player)
+    {
+        Console.WriteLine($"Player ID : {player.PlayerId}");
+        Console.WriteLine($"Username  : {player.Username}");
+        Console.WriteLine("Game Stats:");
+
+        if (player.GameStats.Count == 0)
+        {
+            Console.WriteLine("  No game stats recorded.");
+            Console.WriteLine();
+            return;
+        }
+
+        for (int i = 0; i < player.GameStats.Count; i++)
+        {
+            PrintGameStat(player.GameStats[i], i + 1);
+        }
+
+        Console.WriteLine();
+    }
+
+    private static void PrintGameStat(GameStat gameStat, int number)
+    {
+        Console.WriteLine($"  {number}. {gameStat.GameName}");
+        Console.WriteLine($"     Hours Played : {gameStat.HoursPlayed}");
+        Console.WriteLine($"     High Score   : {gameStat.HighScore}");
     }
 }
