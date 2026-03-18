@@ -131,4 +131,61 @@ public class GameLibraryManagerTests
 
         Assert.False(result);
     }
+
+    [Fact]
+    public void FindPlayersByUsername_ShouldReturnMatchingPlayers()
+    {
+        var manager = new Manager();
+
+        manager.AddPlayer(new Player(7, "alex"));
+        manager.AddPlayer(new Player(8, "alexander"));
+        manager.AddPlayer(new Player(9, "maria"));
+
+        var results = manager.FindPlayersByUsername("alex");
+
+        Assert.Equal(2, results.Count);
+    }
+
+    [Fact]
+    public void FindPlayersByUsername_ShouldReturnEmptyList_WhenNoMatchExists()
+    {
+        var manager = new Manager();
+        manager.AddPlayer(new Player(10, "jordan"));
+
+        var results = manager.FindPlayersByUsername("sam");
+
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void FindPlayersByGameName_ShouldReturnPlayersWithMatchingGame()
+    {
+        var manager = new Manager();
+        var player1 = new Player(11, "nina");
+        var player2 = new Player(12, "owen");
+
+        manager.AddPlayer(player1);
+        manager.AddPlayer(player2);
+        manager.AddGameStatToPlayer(11, new GameStat("Minecraft", 30, 4000));
+        manager.AddGameStatToPlayer(12, new GameStat("Hades", 15, 2500));
+
+        var results = manager.FindPlayersByGameName("craft");
+
+        Assert.Single(results);
+        Assert.Equal("nina", results[0].Username);
+    }
+
+    [Fact]
+    public void FindPlayersByGameName_ShouldReturnEmptyList_WhenNoMatchExists()
+    {
+        var manager = new Manager();
+        var player = new Player(13, "paul");
+
+        manager.AddPlayer(player);
+        manager.AddGameStatToPlayer(13, new GameStat("Celeste", 8, 1200));
+
+        var results = manager.FindPlayersByGameName("Stardew");
+
+        Assert.Empty(results);
+    }
 }

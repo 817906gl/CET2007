@@ -48,14 +48,20 @@ internal class Program
                     ViewAllPlayers(manager);
                     break;
                 case "6":
-                    FindPlayerById(manager);
+                    SearchPlayerById(manager);
                     break;
                 case "7":
+                    SearchPlayerByUsername(manager);
+                    break;
+                case "8":
+                    SearchPlayersByGameName(manager);
+                    break;
+                case "9":
                     isRunning = false;
                     Console.WriteLine("Goodbye.");
                     break;
                 default:
-                    Console.WriteLine("Invalid option. Please choose 1, 2, 3, 4, 5, 6, or 7.");
+                    Console.WriteLine("Invalid option. Please choose a number from 1 to 9.");
                     break;
             }
 
@@ -139,7 +145,7 @@ internal class Program
         }
     }
 
-    private static void FindPlayerById(GameLibraryManager.Services.GameLibraryManager manager)
+    private static void SearchPlayerById(GameLibraryManager.Services.GameLibraryManager manager)
     {
         Console.Write("Enter player ID to search: ");
         string? idInput = Console.ReadLine();
@@ -158,7 +164,9 @@ internal class Program
             return;
         }
 
-        Console.WriteLine($"Player found: ID = {player.PlayerId}, Username = {player.Username}");
+        Console.WriteLine("Search Result");
+        Console.WriteLine("-------------");
+        PrintPlayerDetails(player);
     }
 
     private static void AddGameStatToPlayer(GameLibraryManager.Services.GameLibraryManager manager)
@@ -289,6 +297,62 @@ internal class Program
         }
 
         Console.WriteLine("Game stat updated successfully.");
+    }
+
+    private static void SearchPlayerByUsername(GameLibraryManager.Services.GameLibraryManager manager)
+    {
+        Console.Write("Enter username to search: ");
+        string? username = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            Console.WriteLine("Username cannot be empty.");
+            return;
+        }
+
+        List<Player> players = manager.FindPlayersByUsername(username.Trim());
+
+        if (players.Count == 0)
+        {
+            Console.WriteLine("No players found.");
+            return;
+        }
+
+        Console.WriteLine("Search Results");
+        Console.WriteLine("--------------");
+
+        foreach (Player player in players)
+        {
+            PrintPlayerDetails(player);
+        }
+    }
+
+    private static void SearchPlayersByGameName(GameLibraryManager.Services.GameLibraryManager manager)
+    {
+        Console.Write("Enter game name to search: ");
+        string? gameName = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(gameName))
+        {
+            Console.WriteLine("Game name cannot be empty.");
+            return;
+        }
+
+        List<Player> players = manager.FindPlayersByGameName(gameName.Trim());
+
+        if (players.Count == 0)
+        {
+            Console.WriteLine("No players found for that game.");
+            return;
+        }
+
+        Console.WriteLine("Players Matching Game");
+        Console.WriteLine("---------------------");
+
+        foreach (Player player in players)
+        {
+            PrintPlayerDetails(player);
+        }
     }
 
     private static void PrintPlayerDetails(Player player)

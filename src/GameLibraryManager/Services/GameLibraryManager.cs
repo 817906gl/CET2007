@@ -38,6 +38,21 @@ public class GameLibraryManager
         return _players.FirstOrDefault(player => player.PlayerId == playerId);
     }
 
+    public List<Player> FindPlayersByUsername(string username)
+    {
+        return _players
+            .Where(player => player.Username.Contains(username, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    public List<Player> FindPlayersByGameName(string gameName)
+    {
+        return _players
+            .Where(player => player.GameStats.Any(stat =>
+                stat.GameName.Contains(gameName, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+    }
+
     public bool AddGameStatToPlayer(int playerId, GameStat gameStat)
     {
         if (gameStat == null)
