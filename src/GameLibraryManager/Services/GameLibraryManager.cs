@@ -33,6 +33,16 @@ public class GameLibraryManager
         return new List<Player>(_players);
     }
 
+    public void ReplaceAllPlayers(List<Player> players)
+    {
+        _players.Clear();
+
+        foreach (Player player in players)
+        {
+            _players.Add(player);
+        }
+    }
+
     public Player? FindPlayerById(int playerId)
     {
         return _players.FirstOrDefault(player => player.PlayerId == playerId);

@@ -11,6 +11,8 @@ internal class Program
         Console.Title = "Game Library & Player Stats Manager";
         var manager = new GameLibraryManager.Services.GameLibraryManager();
         var reportService = new ReportService();
+        var storageService = new JsonStorageService();
+        const string dataFilePath = "data/players.json";
 
         bool isRunning = true;
 
@@ -70,11 +72,17 @@ internal class Program
                     ShowTopScoringPlayersReport(manager, reportService);
                     break;
                 case "13":
+                    SaveData(manager, storageService, dataFilePath);
+                    break;
+                case "14":
+                    LoadData(manager, storageService, dataFilePath);
+                    break;
+                case "15":
                     isRunning = false;
                     Console.WriteLine("Goodbye.");
                     break;
                 default:
-                    Console.WriteLine("Invalid option. Please choose a number from 1 to 13.");
+                    Console.WriteLine("Invalid option. Please choose a number from 1 to 15.");
                     break;
             }
 
@@ -422,6 +430,39 @@ internal class Program
         List<Player> players = manager.SortPlayersByHighestScore();
         string report = reportService.BuildTopScoringPlayersReport(players);
         Console.WriteLine(report);
+    }
+
+    private static void SaveData(
+        GameLibraryManager.Services.GameLibraryManager manager,
+        JsonStorageService storageService,
+        string filePath)
+    {
+        bool wasSaved = storageService.SavePlayers(filePath, manager.GetAllPlayers(), out string message);
+
+        Console.WriteLine(message);
+
+        if (wasSaved)
+        {
+            Console.WriteLine($"Saved file: {filePath}");
+        }
+    }
+
+    private static void LoadData(
+        GameLibraryManager.Services.GameLibraryManager manager,
+        JsonStorageService storageService,
+        string filePath)
+    {
+        bool wasLoaded = storageService.LoadPlayers(filePath, out List<Player> players, out string message);
+
+        Console.WriteLine(message);
+
+        if (!wasLoaded)
+        {
+            return;
+        }
+
+        manager.ReplaceAllPlayers(players);
+        Console.WriteLine($"Loaded file: {filePath}");
     }
 
     private static void PrintPlayerDetails(Player player)

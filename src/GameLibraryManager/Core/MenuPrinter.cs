@@ -17,7 +17,9 @@ internal static class MenuPrinter
         Console.WriteLine("10. Sort Players by Highest Score");
         Console.WriteLine("11. Most Active Players Report");
         Console.WriteLine("12. Top Scoring Players Report");
-        Console.WriteLine("13. Exit");
+        Console.WriteLine("13. Save Data");
+        Console.WriteLine("14. Load Data");
+        Console.WriteLine("15. Exit");
         Console.WriteLine();
         Console.Write("Select an option: ");
     }
