@@ -10,6 +10,7 @@ internal class Program
     {
         Console.Title = "Game Library & Player Stats Manager";
         var manager = new GameLibraryManager.Services.GameLibraryManager();
+        var reportService = new ReportService();
 
         bool isRunning = true;
 
@@ -63,11 +64,17 @@ internal class Program
                     SortPlayersByHighestScore(manager);
                     break;
                 case "11":
+                    ShowMostActivePlayersReport(manager, reportService);
+                    break;
+                case "12":
+                    ShowTopScoringPlayersReport(manager, reportService);
+                    break;
+                case "13":
                     isRunning = false;
                     Console.WriteLine("Goodbye.");
                     break;
                 default:
-                    Console.WriteLine("Invalid option. Please choose a number from 1 to 11.");
+                    Console.WriteLine("Invalid option. Please choose a number from 1 to 13.");
                     break;
             }
 
@@ -397,6 +404,24 @@ internal class Program
         {
             Console.WriteLine($"{player.Username} - Highest Score: {GetHighestScore(player)}");
         }
+    }
+
+    private static void ShowMostActivePlayersReport(
+        GameLibraryManager.Services.GameLibraryManager manager,
+        ReportService reportService)
+    {
+        List<Player> players = manager.SortPlayersByTotalHoursPlayed();
+        string report = reportService.BuildMostActivePlayersReport(players);
+        Console.WriteLine(report);
+    }
+
+    private static void ShowTopScoringPlayersReport(
+        GameLibraryManager.Services.GameLibraryManager manager,
+        ReportService reportService)
+    {
+        List<Player> players = manager.SortPlayersByHighestScore();
+        string report = reportService.BuildTopScoringPlayersReport(players);
+        Console.WriteLine(report);
     }
 
     private static void PrintPlayerDetails(Player player)
