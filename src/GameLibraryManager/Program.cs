@@ -1,6 +1,7 @@
 using GameLibraryManager.Core;
 using GameLibraryManager.Models;
 using GameLibraryManager.Services;
+using GameLibraryManager.Utilities;
 
 namespace GameLibraryManager;
 
@@ -101,8 +102,7 @@ internal class Program
 
     private static void ShowHeader()
     {
-        Console.WriteLine("Welcome to Game Library & Player Stats Manager");
-        Console.WriteLine("---------------------------------------------");
+        ConsoleHelper.PrintSectionTitle("Welcome to Game Library & Player Stats Manager");
         Console.WriteLine();
     }
 
@@ -148,20 +148,7 @@ internal class Program
     private static void ViewAllPlayers(GameLibraryManager.Services.GameLibraryManager manager)
     {
         List<Player> players = manager.GetAllPlayers();
-
-        if (players.Count == 0)
-        {
-            Console.WriteLine("No players found.");
-            return;
-        }
-
-        Console.WriteLine("Players");
-        Console.WriteLine("-------");
-
-        foreach (Player player in players)
-        {
-            PrintPlayerDetails(player);
-        }
+        DisplayPlayers(players, "Players", "No players found.");
     }
 
     private static void SearchPlayerById(GameLibraryManager.Services.GameLibraryManager manager)
@@ -179,8 +166,7 @@ internal class Program
             return;
         }
 
-        Console.WriteLine("Search Result");
-        Console.WriteLine("-------------");
+        ConsoleHelper.PrintSectionTitle("Search Result");
         PrintPlayerDetails(player);
     }
 
@@ -321,20 +307,7 @@ internal class Program
         }
 
         List<Player> players = manager.FindPlayersByUsername(username);
-
-        if (players.Count == 0)
-        {
-            Console.WriteLine("No players found.");
-            return;
-        }
-
-        Console.WriteLine("Search Results");
-        Console.WriteLine("--------------");
-
-        foreach (Player player in players)
-        {
-            PrintPlayerDetails(player);
-        }
+        DisplayPlayers(players, "Search Results", "No players found.");
     }
 
     private static void SearchPlayersByGameName(GameLibraryManager.Services.GameLibraryManager manager)
@@ -345,58 +318,19 @@ internal class Program
         }
 
         List<Player> players = manager.FindPlayersByGameName(gameName);
-
-        if (players.Count == 0)
-        {
-            Console.WriteLine("No players found for that game.");
-            return;
-        }
-
-        Console.WriteLine("Players Matching Game");
-        Console.WriteLine("---------------------");
-
-        foreach (Player player in players)
-        {
-            PrintPlayerDetails(player);
-        }
+        DisplayPlayers(players, "Players Matching Game", "No players found for that game.");
     }
 
     private static void SortPlayersByTotalHours(GameLibraryManager.Services.GameLibraryManager manager)
     {
         List<Player> players = manager.SortPlayersByTotalHoursPlayed();
-
-        if (players.Count == 0)
-        {
-            Console.WriteLine("No players found.");
-            return;
-        }
-
-        Console.WriteLine("Players Sorted by Total Hours Played");
-        Console.WriteLine("-----------------------------------");
-
-        foreach (Player player in players)
-        {
-            Console.WriteLine($"{player.Username} - Total Hours: {GetTotalHoursPlayed(player)}");
-        }
+        DisplayPlayerRanking(players, "Players Sorted by Total Hours Played", "Total Hours", GetTotalHoursPlayed);
     }
 
     private static void SortPlayersByHighestScore(GameLibraryManager.Services.GameLibraryManager manager)
     {
         List<Player> players = manager.SortPlayersByHighestScore();
-
-        if (players.Count == 0)
-        {
-            Console.WriteLine("No players found.");
-            return;
-        }
-
-        Console.WriteLine("Players Sorted by Highest Score");
-        Console.WriteLine("------------------------------");
-
-        foreach (Player player in players)
-        {
-            Console.WriteLine($"{player.Username} - Highest Score: {GetHighestScore(player)}");
-        }
+        DisplayPlayerRanking(players, "Players Sorted by Highest Score", "Highest Score", GetHighestScore);
     }
 
     private static void ShowMostActivePlayersReport(
@@ -524,6 +458,42 @@ internal class Program
         Console.WriteLine($"  {number}. {gameStat.GameName}");
         Console.WriteLine($"     Hours Played : {gameStat.HoursPlayed}");
         Console.WriteLine($"     High Score   : {gameStat.HighScore}");
+    }
+
+    private static void DisplayPlayers(List<Player> players, string title, string emptyMessage)
+    {
+        if (players.Count == 0)
+        {
+            Console.WriteLine(emptyMessage);
+            return;
+        }
+
+        ConsoleHelper.PrintSectionTitle(title);
+
+        foreach (Player player in players)
+        {
+            PrintPlayerDetails(player);
+        }
+    }
+
+    private static void DisplayPlayerRanking(
+        List<Player> players,
+        string title,
+        string valueLabel,
+        Func<Player, int> valueSelector)
+    {
+        if (players.Count == 0)
+        {
+            Console.WriteLine("No players found.");
+            return;
+        }
+
+        ConsoleHelper.PrintSectionTitle(title);
+
+        foreach (Player player in players)
+        {
+            Console.WriteLine($"{player.Username} - {valueLabel}: {valueSelector(player)}");
+        }
     }
 
     private static int GetTotalHoursPlayed(Player player)
